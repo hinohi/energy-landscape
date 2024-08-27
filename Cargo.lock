@@ -114,9 +114,17 @@ name = "energy-landscape"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "fsum",
  "rand",
  "rand_pcg",
+ "rustc-hash",
 ]
+
+[[package]]
+name = "fsum"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3a597f730845c4bd1d4ef892ae898bbcf867375d72f43e50f285e07e59c4f589"
 
 [[package]]
 name = "getrandom"
@@ -213,6 +221,12 @@ checksum = "362970702a5bf89a7a74dd0b4ded2362415b6bbc171648b0eeaee26c44f7e728"
 dependencies = [
  "rand_core",
 ]
+
+[[package]]
+name = "rustc-hash"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "583034fd73374156e66797ed8e5b0d5690409c9226b22d87cb7f19821c05d152"
 
 [[package]]
 name = "strsim"

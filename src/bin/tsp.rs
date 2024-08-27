@@ -1,6 +1,7 @@
 use clap::Parser;
 use rand::Rng;
 use rand_pcg::Mcg128Xsl64;
+use rustc_hash::FxHashMap;
 
 #[derive(Parser)]
 struct Args {
@@ -79,11 +80,12 @@ fn make_dist_mat(towns: &[[f64; 2]]) -> Vec<Vec<f64>> {
 }
 
 fn calc_tour_length(dist_mat: &[Vec<f64>], tour: &[usize]) -> f64 {
-    let mut sum = dist_mat[0][tour[0]];
+    let mut sum = fsum::FSum::new();
+    sum.add(dist_mat[0][tour[0]]);
     for i in 0..tour.len() - 1 {
-        sum += dist_mat[tour[i]][tour[i + 1]];
+        sum.add(dist_mat[tour[i]][tour[i + 1]]);
     }
-    sum + dist_mat[tour.len() - 1][0]
+    sum.add(dist_mat[tour.len() - 1][0]).value()
 }
 
 fn tour_as_key(tour: &[usize]) -> u64 {
@@ -95,20 +97,32 @@ fn tour_as_key(tour: &[usize]) -> u64 {
     key
 }
 
+fn factorial(n: usize) -> usize {
+    let mut m = 1;
+    for i in 2..=n {
+        m *= i;
+    }
+    m
+}
+
 fn main() {
     let args = Args::parse();
     let mut rng = Mcg128Xsl64::new(args.seed);
     let towns = make_town(&mut rng, args.n, args.size);
     let dist_mat = make_dist_mat(&towns);
     let mut tour = (1..args.n).collect::<Vec<_>>();
+    let mut tour_length =
+        FxHashMap::with_capacity_and_hasher(factorial(args.n), Default::default());
+    let mut min_length = f64::INFINITY;
     loop {
-        println!(
-            "{} {}",
-            tour_as_key(&tour),
-            calc_tour_length(&dist_mat, &tour)
-        );
+        let length = calc_tour_length(&dist_mat, &tour);
+        tour_length.insert(tour_as_key(&tour), length);
+        min_length = min_length.min(length);
         if !tour.next_permutation() {
             break;
         }
+    }
+    for (key, length) in tour_length.iter() {
+        println!("{} {}", key, *length - min_length);
     }
 }
