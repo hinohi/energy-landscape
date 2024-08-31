@@ -85,14 +85,21 @@ fn calc_tour_length(dist_mat: &[Vec<f64>], tour: &[usize]) -> f64 {
     for i in 0..tour.len() - 1 {
         sum.add(dist_mat[tour[i]][tour[i + 1]]);
     }
-    sum.add(dist_mat[tour.len() - 1][0]).value()
+    sum.add(dist_mat[*tour.last().unwrap()][0]).value()
 }
 
 fn tour_as_key(tour: &[usize]) -> u64 {
     let mut key = 0;
-    for t in tour {
-        key <<= 4;
-        key += (*t - 1) as u64;
+    if tour[0] < *tour.last().unwrap() {
+        for t in tour {
+            key <<= 4;
+            key += (*t - 1) as u64;
+        }
+    } else {
+        for t in tour.iter().rev() {
+            key <<= 4;
+            key += (*t - 1) as u64;
+        }
     }
     key
 }
